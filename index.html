@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>100 students: who studies in Korea</title>
+  <meta name="description" content="An interactive scrollytelling visualization exploring the 307,464 international students enrolled in Korean higher education in April 2026.">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <div class="prog" id="prog" aria-hidden="true"></div>
+
+  <header>
+    <h1>If Korea’s international students were a class of <mark>100</mark>…</h1>
+    <p>Each dot stands for about 3,000 of the 307,464 international students enrolled in Korean higher education in April 2026. Scroll to see who they are, where they come from and where they study.</p>
+    <div class="arrow" aria-hidden="true">↓</div>
+  </header>
+
+  <noscript>
+    <p class="noscript-msg">This interactive story requires JavaScript to render charts, maps and scroll animations.</p>
+  </noscript>
+
+  <main>
+    <div class="wrap" id="w2">
+      <div class="steps" id="steps2"></div>
+      <div class="viz">
+        <div class="cw">
+          <svg class="tl" id="chart" viewBox="0 0 600 330" role="img" aria-label="Total international students in Korea from 1999 to 2026"></svg>
+          <svg class="tl" id="chart2" viewBox="0 0 600 330" role="img" aria-label="International students in Korea by nationality from 2018 to 2026"></svg>
+        </div>
+        <div class="legend" id="legend2"></div>
+        <div class="drill" id="drill" role="dialog" aria-modal="true" aria-label="Country breakdown inside Others"></div>
+      </div>
+    </div>
+
+    <div class="wrap" id="w1">
+      <div class="steps" id="steps"></div>
+      <div class="viz">
+        <div class="stage" id="stage">
+          <svg class="map" id="map" viewBox="-60 0 440 379" role="img" aria-label="Map of international students across South Korean provinces"></svg>
+        </div>
+        <div class="bars" id="bars"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <h2>What comes next?</h2>
+    <p>Korea passed its 300,000-student target a year ahead of schedule. The question is no longer how many students will come, but whether the country can educate and retain them.</p>
+    <p><b>Sources:</b> Ministry of Education and KEDI, international student statistics for 2025 and 2026 (provincial, degree-level and gender tables), 2025 statistics by country, university and funding type, and the historical series 1999–2024. Nationality figures for 2026 and the September 2026 policy shift come from press reports of the Ministry’s release (Korea Herald, Seoulz). The nationality chart starts in 2018 because earlier breakdowns are not in the files; “Others” means everyone except China, Vietnam and Uzbekistan, and includes Mongolia in every year because 2026 is not split further. Province boundaries come from Statistics Korea (KOSTAT, 2018) and are simplified for display. Dots are rounded to 100 and are a visual simplification; 2018 and 2025 nationality shares are from the KEDI workbook.</p>
+  </footer>
+
+  <script defer src="./js/data.js"></script>
+  <script defer src="./js/app.js"></script>
+</body>
+</html>
