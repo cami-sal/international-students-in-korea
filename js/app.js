@@ -53,7 +53,7 @@
     }
   };
 
-  const DOTS_MAP_CAP = "Each dot is about 3,000 students · hover or tap a province for details";
+  const DOTS_MAP_CAP = "Each person icon is about 3,000 students · hover or tap a province for details";
   let defaultMapCap = "";
 
   function drawMap(key) {
@@ -153,15 +153,81 @@
     '<rect class="lg r" x="13" y="24" width="4.5" height="15" rx="2"/>' +
     "</g></svg>";
 
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
   const dots = [];
   for (let i = 0; i < 100; i++) {
     const d = document.createElement("div");
     d.className = "dot";
     d.dataset.k = "n";
     d.innerHTML = PSVG;
+    // Speed in % of stage per second: ~70% walk briskly, ~30% walk slower (~1s later arrival)
+    d._speed = Math.random() < 0.3 ? 17 + Math.random() * 8 : 34 + Math.random() * 14;
+    d._x = 50;
+    d._y = 50;
+    d._sx = 50;
+    d._sy = 50;
+    d._tx = 50;
+    d._ty = 50;
+    d._startAt = 0;
+    d._dur = 0;
+    d._moving = false;
     d.style.setProperty("--ph", (-Math.random() * 0.5).toFixed(2) + "s");
     stage.appendChild(d);
     dots.push(d);
+  }
+
+  let walkRaf = 0;
+
+  // Steady walking curve: visible motion right up to the final frame (no slow creeping tail)
+  const easeWalk = (t) => 0.65 * t + 0.35 * (0.5 - 0.5 * Math.cos(Math.PI * t));
+
+  function stopAllWalkers() {
+    if (walkRaf) {
+      cancelAnimationFrame(walkRaf);
+      walkRaf = 0;
+    }
+    dots.forEach((d) => {
+      d._moving = false;
+      d.classList.remove("walk");
+    });
+  }
+
+  function tickWalkers(now) {
+    let anyActive = false;
+
+    for (let j = 0; j < dots.length; j++) {
+      const d = dots[j];
+      if (!d._moving) continue;
+
+      if (now < d._startAt) {
+        // Still waiting for reaction delay: stand completely still
+        anyActive = true;
+        continue;
+      }
+
+      const t = (now - d._startAt) / d._dur;
+      if (t >= 1) {
+        // Arrived at exact destination: snap and stop limbs on this exact frame
+        d._x = d._tx;
+        d._y = d._ty;
+        d.style.left = `${d._x}%`;
+        d.style.top = `${d._y}%`;
+        d._moving = false;
+        d.classList.remove("walk");
+        continue;
+      }
+
+      const p = easeWalk(t);
+      d._x = d._sx + (d._tx - d._sx) * p;
+      d._y = d._sy + (d._ty - d._sy) * p;
+      d.style.left = `${d._x}%`;
+      d.style.top = `${d._y}%`;
+      if (!d.classList.contains("walk")) d.classList.add("walk");
+      anyActive = true;
+    }
+
+    walkRaf = anyActive ? requestAnimationFrame(tickWalkers) : 0;
   }
 
   const labs = [];
@@ -170,6 +236,48 @@
     d.className = "gl";
     stage.appendChild(d);
     labs.push(d);
+  }
+
+  const FLAG_CLOTH = "M16 14Q34 11.5 52 14T88 14L88 62Q70 64.5 52 62T16 62Z";
+  const FLAGS = {
+    cn:
+      `<path d="${FLAG_CLOTH}" fill="#de2910"/>` +
+      '<polygon points="28.0,18.8 29.6,23.7 34.8,23.8 30.7,26.9 32.2,31.8 28.0,28.8 23.8,31.8 25.3,26.9 21.2,23.8 26.4,23.7" fill="#ffde00"/>' +
+      '<polygon points="40.9,16.8 40.8,18.5 42.4,19.2 40.7,19.6 40.5,21.3 39.6,19.9 37.9,20.2 39.1,18.9 38.2,17.4 39.8,18.1" fill="#ffde00"/>' +
+      '<polygon points="46.7,22.3 45.9,23.9 47.1,25.1 45.4,24.9 44.6,26.4 44.3,24.7 42.6,24.3 44.2,23.6 43.9,21.8 45.2,23.1" fill="#ffde00"/>' +
+      '<polygon points="45.0,28.6 45.6,30.2 47.3,30.3 45.9,31.3 46.4,32.9 45.0,31.9 43.6,32.9 44.1,31.3 42.7,30.3 44.4,30.2" fill="#ffde00"/>' +
+      '<polygon points="40.8,33.7 40.8,35.5 42.4,36.1 40.7,36.6 40.7,38.3 39.7,36.9 38.0,37.3 39.1,36.0 38.1,34.5 39.7,35.1" fill="#ffde00"/>',
+    vn:
+      `<path d="${FLAG_CLOTH}" fill="#da251d"/>` +
+      '<polygon points="52.0,24.5 55.1,33.8 64.8,33.8 56.9,39.6 59.9,48.9 52.0,43.2 44.1,48.9 47.1,39.6 39.2,33.8 48.9,33.8" fill="#ffde00"/>',
+    np:
+      '<path d="M16 12L68 38L35 38L68 68L16 68Z" fill="#dc143c" stroke="#003893" stroke-width="3.6" stroke-linejoin="round"/>' +
+      '<path d="M24.2 29.8a7.4 7.4 0 0 0 13.6 0a9.5 9.5 0 0 1-13.6 0Z" fill="#ffffff"/>' +
+      '<polygon points="31.0,27.9 31.8,29.7 33.5,29.0 32.8,30.7 34.6,31.5 32.8,32.3 33.5,34.0 31.8,33.3 31.0,35.1 30.2,33.3 28.5,34.0 29.2,32.3 27.4,31.5 29.2,30.7 28.5,29.0 30.2,29.7" fill="#ffffff"/>' +
+      '<polygon points="31.0,48.5 32.1,51.7 34.8,49.5 34.1,52.9 37.5,52.2 35.3,54.9 38.5,56.0 35.3,57.1 37.5,59.8 34.1,59.1 34.8,62.5 32.1,60.3 31.0,63.5 29.9,60.3 27.2,62.5 27.9,59.1 24.5,59.8 26.7,57.1 23.5,56.0 26.7,54.9 24.5,52.2 27.9,52.9 27.2,49.5 29.9,51.7" fill="#ffffff"/>'
+  };
+
+  const flagBox = document.createElement("div");
+  flagBox.className = "flag-box";
+  flagBox.setAttribute("aria-hidden", "true");
+  stage.appendChild(flagBox);
+
+  function renderFlag(code) {
+    if (!code || !FLAGS[code]) {
+      flagBox.classList.remove("show");
+      return;
+    }
+    if (flagBox.dataset.code !== code) {
+      flagBox.dataset.code = code;
+      flagBox.innerHTML =
+        '<svg viewBox="0 0 100 112">' +
+        '<ellipse cx="14" cy="107" rx="10" ry="2.6" fill="var(--ink)" opacity="0.12"/>' +
+        `<g class="flag-cloth">${FLAGS[code]}</g>` +
+        '<rect x="12" y="10" width="4" height="97" rx="2" fill="var(--mute)"/>' +
+        '<circle cx="14" cy="9" r="3.6" fill="#e5b84b"/>' +
+        "</svg>";
+    }
+    flagBox.classList.add("show");
   }
 
   S.forEach((s, i) => {
@@ -284,26 +392,52 @@
     const s = S[i];
 
     if (s.bars) {
+      stopAllWalkers();
+      renderFlag(null);
       stage.classList.add("hide");
       bars.classList.add("show");
       const b = s.bars;
+      const isCmp = Boolean(b.base);
+      const scalePct = isCmp ? 80 : 76;
+      const basePct = isCmp ? (b.base / b.max) * scalePct : 0;
+
+      bars.classList.toggle("cmp", isCmp);
       bars.innerHTML = b.rows
-        .map(([label, value, colorKey, text, desc]) => {
-          const widthPct = (Math.abs(value) / b.max) * 76;
+        .map(([label, value, colorKey, text, desc], idx) => {
+          const widthPct = (Math.abs(value) / b.max) * scalePct;
           const fill = C[colorKey] || colorKey;
-          const extraStyle = desc ? ";height:auto;min-height:30px" : "";
-          const descHtml = desc ? `<span class="bd" style="--w:${widthPct}">${desc}</span>` : "";
-          return (
-            `<div class="row">` +
-            `<span class="lab">${label}</span>` +
+          const trackHtml = isCmp
+            ? `<div class="pair">` +
+            `<i class="base-line" style="left:${basePct}%">${idx === 0 ? `<em class="base-tag">${b.baseLabel || "2025"}</em>` : ""}</i>` +
+            `<div class="track track-prev">` +
+            `<div class="bar bar-prev" data-w="${basePct}"></div>` +
+            `</div>` +
             `<div class="track">` +
-            `<div class="bar" data-w="${widthPct}" style="background:${fill}${extraStyle}">${descHtml}</div>` +
+            `<div class="bar" data-w="${widthPct}" style="background:${fill}"></div>` +
             `<b class="val">${text || value.toLocaleString("en-US")}</b>` +
-            `</div></div>`
-          );
+            `</div>` +
+            `</div>`
+            : `<div class="track">` +
+            `<div class="bar" data-w="${widthPct}" style="background:${fill}"></div>` +
+            `<b class="val">${text || value.toLocaleString("en-US")}</b>` +
+            `</div>`;
+          if (desc) {
+            const txColor = C[colorKey] ? `var(--${colorKey}-tx)` : "var(--mute)";
+            return (
+              `<div class="row has-desc">` +
+              `<span class="lab">${label}</span>` +
+              `<div class="track-col">${trackHtml}<span class="bd-out" style="color:${txColor}">${desc}</span></div>` +
+              `</div>`
+            );
+          }
+          return `<div class="row"><span class="lab">${label}</span>${trackHtml}</div>`;
         })
         .join("");
-      legend.innerHTML = `<span class="cap">${b.cap}</span>`;
+      legend.innerHTML = isCmp
+        ? `<span><i style="background:var(--g)"></i>${b.baseLabel || "2025"} (100)</span>` +
+        `<span><i style="background:linear-gradient(135deg,var(--o),var(--c),var(--u),var(--v))"></i>April 2026</span>` +
+        `<span class="cap2">${b.cap}</span>`
+        : `<span class="cap">${b.cap}</span>`;
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
           bars.querySelectorAll(".bar").forEach((x) => {
@@ -319,34 +453,79 @@
       void stage.offsetWidth;
     }
     bars.classList.remove("show");
+    renderFlag(s.flag);
 
     const fade = Boolean(s.map) && s.map !== "dots";
     const L = fade ? { P: [], Lb: [] } : layout(s);
     const pct = (x, y) => [((x + 60) / 440) * 100, (y / 379) * 100];
 
+    const now = performance.now();
+    const instant = reducedMotion.matches;
+    let anyMoving = false;
+
     dots.forEach((d, j) => {
       if (!fade) {
         const q = L.P[j] || [160, 190, 1];
         const [x, y] = pct(q[0], q[1]);
-        if (Math.abs((d._x || 0) - x) > 0.05 || Math.abs((d._y || 0) - y) > 0.05) {
-          d.classList.add("walk");
-          clearTimeout(d._t);
-          d._t = setTimeout(() => d.classList.remove("walk"), 1250 + j * 5);
-        }
-        d._x = x;
-        d._y = y;
-        d.style.left = `${x}%`;
-        d.style.top = `${y}%`;
+        const dx = x - d._x;
+        const dy = y - d._y;
+        const dist = Math.hypot(dx, dy);
+
         d.style.setProperty("--s", q[2]);
-        d.style.transitionDelay = `${j * 5}ms`;
+
+        if (instant || dist < 0.3) {
+          d._x = x;
+          d._y = y;
+          d._tx = x;
+          d._ty = y;
+          d._moving = false;
+          d.style.left = `${x}%`;
+          d.style.top = `${y}%`;
+          d.classList.remove("walk");
+        } else {
+          // Slight per-move speed variation around each person's natural pace
+          const speed = d._speed * (0.88 + Math.random() * 0.24);
+          const dur = Math.round(Math.max(240, Math.min(2800, (dist / speed) * 1000)));
+          const delay = Math.round(Math.random() * 160 * Math.min(1, dist / 15));
+
+          // Match leg stride cadence to actual walking speed
+          const strideSec = Math.max(0.3, Math.min(0.6, 0.62 - speed * 0.007)).toFixed(2);
+          const leanDeg = Math.abs(dx) < 1.5 ? 0 : Math.max(-7, Math.min(7, dx * 0.28)).toFixed(1);
+
+          d.style.setProperty("--step", `${strideSec}s`);
+          d.style.setProperty("--lean", `${leanDeg}deg`);
+
+          d._sx = d._x;
+          d._sy = d._y;
+          d._tx = x;
+          d._ty = y;
+          d._startAt = now + delay;
+          d._dur = dur;
+          d._moving = true;
+
+          // Only turn on .walk immediately if there is no start delay
+          d.classList.toggle("walk", delay === 0);
+          anyMoving = true;
+        }
+      } else {
+        d._moving = false;
+        d.classList.remove("walk");
       }
+
       d.classList.toggle("off", fade);
     });
+
+    if (anyMoving && !walkRaf) {
+      walkRaf = requestAnimationFrame(tickWalkers);
+    } else if (!anyMoving && walkRaf) {
+      cancelAnimationFrame(walkRaf);
+      walkRaf = 0;
+    }
 
     if (s.map) {
       if (!fade) {
         dots.forEach((d) => {
-          d.style.color = C.v;
+          d.style.color = "var(--map-dot)";
           d.dataset.k = "x";
         });
       }

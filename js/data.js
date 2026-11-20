@@ -238,7 +238,7 @@
   const S = [
     {
       h: "More than nine in ten come from Asia",
-      t: `In 2025, ${K("u", "92")} of every 100 students came from Asia. Europe sent about 5 and Africa, the Americas and Oceania together fewer than 4.`,
+      t: `In 2025, ${K("u", "92")} of every 100 students came from ${K("u", "Asia")}. ${K("c", "Europe")} sent about 5, and ${K("o", "Africa, the Americas and Oceania")} together sent fewer than 4.`,
       ppl: 1,
       a: [["u", 92], ["c", 5], ["o", 3]],
       lg: [["u", "Asia"], ["c", "Europe"], ["o", "Rest of the world"]]
@@ -262,20 +262,23 @@
       lg: [["v", "Vietnam"], ["c", "China"], ["u", "Uzbekistan"], ["o", "Others"]]
     },
     {
-      h: "China: graduate school focus",
+      h: "China",
       t: `Same headline numbers, very different journeys. Of every 100 Chinese students in 2025, ${K("o", "39")} were in graduate school and just 7 in language courses.`,
+      flag: "cn",
       a: [["l", 7], ["c", 50], ["o", 39], ["n", 4]],
       lg: PRG
     },
     {
-      h: "Vietnam: Korean first, then the degree",
+      h: "Vietnam",
       t: `Among Vietnamese students, ${K("l", "45")} in 100 were in language courses and only 11 in graduate school. Many use Korean courses as a stepping stone.`,
+      flag: "vn",
       a: [["l", 45], ["c", 43], ["o", 11], ["n", 1]],
       lg: PRG
     },
     {
-      h: "Nepal: almost all undergraduates",
+      h: "Nepal",
       t: `${K("c", "87")} of every 100 Nepalese students were in undergraduate programs and only 1 in a language course.`,
+      flag: "np",
       a: [["l", 1], ["c", 87], ["o", 12]],
       lg: PRG.slice(0, 3)
     },
@@ -295,14 +298,16 @@
       h: "Bachelor’s up 30%, doctorates down 8%",
       t: "One year of growth did not lift all programs. Undergraduate enrollment grew by almost a third, while the number of doctoral students fell.",
       bars: {
-        max: 40,
-        cap: "Change in enrollment, April 2025 → April 2026",
+        max: 140,
+        base: 100,
+        baseLabel: "April 2025",
+        cap: "Enrollment relative to April 2025 (2025 = 100) → April 2026",
         rows: [
-          ["Other training", 36, "o", "+36%", "Non-degree students outside language courses: exchange, visiting and other short-term programs"],
-          ["Bachelor’s", 30, "c", "+30%"],
-          ["Master’s", 24, "u", "+24%"],
-          ["Language", 8, "l", "+8%"],
-          ["Doctorate", -8, "v", "−8%"]
+          ["Other training", 136, "o", "+36%", "D-2-6 / D-2-8 / D-4 visas · Non-degree students outside language courses: exchange, visiting and short-term programs"],
+          ["Bachelor’s", 130, "c", "+30%", "D-2-2 visa (D-2-1 associate) · Undergraduate degree programs"],
+          ["Master’s", 124, "u", "+24%", "D-2-3 visa · Master’s degree programs"],
+          ["Language", 108, "l", "+8%", "D-4-1 visa · Korean language courses"],
+          ["Doctorate", 92, "v", "−8%", "D-2-4 visa · Doctoral (Ph.D.) programs"]
         ]
       },
       lg: []
@@ -340,12 +345,17 @@
     {
       h: "Seoul is no longer the only destination",
       t: `In 1999, 55% of international students studied in Seoul; in 2026 it is 31%. ${K("u", "47")} in 100 now study outside the capital region (Seoul, Incheon, Gyeonggi), up from 45.8% in 2025.`,
-      a: [["o", 53], ["u", 47]],
-      lg: [["o", "Seoul, Incheon, Gyeonggi"], ["u", "Rest of Korea"]]
+      a: [["v", 31], ["o", 20], ["c", 2], ["u", 47]],
+      lg: [
+        ["v", "Seoul"],
+        ["o", "Gyeonggi"],
+        ["c", "Incheon"],
+        ["u", "Rest of Korea"]
+      ]
     },
     {
       h: "Two regions host half of everyone",
-      t: "Seoul and Gyeonggi together hold 50.7% of students. Each dot is about 3,000 students; behind the capital region comes a second tier led by Busan (24,328) and Gyeongbuk (22,456). Hover or tap a province for details.",
+      t: "Seoul and Gyeonggi together hold 50.7% of students. Each person icon is about 3,000 students; behind the capital region comes a second tier led by Busan (24,328) and Gyeongbuk (22,456). Hover or tap a province for details.",
       map: "dots",
       lg: []
     },
@@ -389,8 +399,8 @@
       lg: []
     },
     {
-      h: "Every dot is a real person",
-      t: "Behind each dot is someone learning a language, finding a room, working part-time and building a life far from home. The question now is how to support them.",
+      h: "Every person icon is a real person",
+      t: "Behind each person icon is someone learning a language, finding a room, working part-time and building a life far from home. The question now is how to support them.",
       a: [["v", 32], ["c", 26], ["u", 7], ["o", 35]],
       lg: []
     }
